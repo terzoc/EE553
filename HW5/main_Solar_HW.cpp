@@ -95,7 +95,6 @@ class Body {
     // for function type use it as: static auto setAccelerations()
     // write your code here
 
-    // Todo
     static auto setAccelerations(vector<Body>& bodies, int acceleration) {
         for (auto& body : bodies) {
             if(body.orbit == "Sun"){
@@ -144,7 +143,6 @@ class SolarSystem {
     // define variable you want to read some info will be saved and some will be used in calculation
     // don't forget to skip first line since it contain title only
     string line, name, orbit, mass, diam, perihelion, aphelion, orbPeriod, rotationalPeriod, axialtilt, orbinclin;
-    int i = 0;
     double solarMass;
 
     while(getline(solarfile, line)){
@@ -157,10 +155,12 @@ class SolarSystem {
            continue;
         }
         
+        // Sets parameters that are the same for every body
         newBody.name = name;
         newBody.orbit = orbit;
         newBody.mass = stod(mass);
 
+        // Save solar mass for calculations later
         if(name == "Sun"){
             solarMass = stod(mass);
         }
@@ -207,6 +207,10 @@ class SolarSystem {
         newBody.pos.z = distr(gen);
         bodies.push_back(newBody);       
     }
+    
+    solarfile.close();
+
+    }
 
     // read file line by line
     // you will need to save Sun mass to use in planet velocity calculation
@@ -242,8 +246,6 @@ class SolarSystem {
     // .push_back() the Body into the SolarSystem bodies class
 
     // don't forget to close the open .dat file after reading the complete file
-    solarfile.close();
-    }
 
     // add the value of accelerations in stepForward
     // this function take variable bodies inside Solarsystem and int acc and use it with function setAccelerations
@@ -257,7 +259,8 @@ class SolarSystem {
     // this function also depend on the overload of Body class
 
     friend ostream& operator<<(ostream& os, const SolarSystem& solarSystem) {
-        os << left << setw(14) << "Name" << setw(10) << "Orbit" << setw(15) << "Mass" << setw(15) << "Position" << setw(35) << "Velocity" << setw(35) << "Acceleration" << endl;
+        os << left << setw(14) << "Name" << setw(10) << "Orbit" << setw(15) << "Mass(kg)" << setw(15) << "Position" 
+        << setw(35) << "Velocity" << setw(35) << "Acceleration" << endl;
         os << string(110, '=') << endl;
         for(int i = 0; i < solarSystem.bodies.size(); i++){
             os << solarSystem.bodies.at(i)<< endl;
