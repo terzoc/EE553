@@ -53,7 +53,7 @@ class Body {
     Body(){
         mass = 0;
         name = "none";
-        orbit = 'none';
+        orbit = "none";
         pos.x = 0;
         pos.y = 0;
         pos.z = 0;
@@ -90,8 +90,13 @@ class Body {
     // write your code here
 
     // Todo
-    static auto setAccelerations(){
-
+    static auto setAccelerations(vector<Body>& bodies, int acceleration) {
+        for (auto& body : bodies) {
+            if(body.orbit == "Sun"){
+                body.a.x += acceleration;
+                body.a.y += acceleration;
+            }
+        }
     }
     // make sure that SolarSystem class is a friend to Body()
     friend class SolarSystem;
@@ -111,6 +116,7 @@ class SolarSystem {
 
     // SolarSystem main function should take the location of .dat file
     // and read the complete file
+    public:
     SolarSystem(string path){
 
     // open ifstream file
@@ -131,13 +137,66 @@ class SolarSystem {
 
     // define variable you want to read some info will be saved and some will be used in calculation
     // don't forget to skip first line since it contain title only
-    string line;
-    Body body;
+    string line, name, orbit, mass, diam, perihelion, aphelion, orbPeriod, rotationalPeriod, axialtilt, orbinclin;
     int i = 0;
-    getline(solarfile, line);
+    double solarMass;
+
+    getline(solarfile, line); //Skip first line
+
     while(getline(solarfile, line)){
+        Body newBody = Body();
         stringstream ss(line);
+        ss >> name >> orbit >> mass >> diam >> perihelion >> aphelion >> orbPeriod >> rotationalPeriod >> axialtilt >> orbinclin;
+
+        newBody.name = name;
+        newBody.orbit = orbit;
+        newBody.mass = stod(mass);
+
+        if(name == "Sun"){
+            solarMass = stod(mass);
+        }
+
+        if(orbit == "Sun"){
+            double radius = (stod(perihelion)+stod(aphelion))/2;
+            double orbVel = sqrt(G * (solarMass+stod(mass))/radius);
+            // cout << "orbVel: " << orbVel << endl;
+            // cout << "radius: " << radius << endl;
+
+            random_device rd;
+            mt19937 gen(rd());
+            uniform_real_distribution<> distr(0, 2 * pi);
+
+            double ang = distr(gen);
+            // cout << "ang: " << ang << endl;
+            // cout << "Sin(ang): " << sin(ang) << endl;
+            // cout << "Cos(ang): " << cos(ang) << endl;
+            newBody.v.x = radius * cos(ang) * orbVel;
+            // cout << "v.x: " << newBody.v.x << endl;
+            newBody.v.y=radius*sin(ang)*orbVel;
+            // cout << "v.y: " << newBody.v.y << endl;
+            newBody.v.z=0;
+
+            double orbAcc = (orbVel * orbVel)/radius;
+            // ang = distr(gen);
+            newBody.a.x=radius*cos(ang)*orbAcc;
+            newBody.a.y=radius*sin(ang)*orbAcc;
+            newBody.a.z=0;
+
+            cout << "Body Name: " << newBody.name << endl;
+            cout << "Orbit: " <<  newBody.orbit << endl;
+            cout << "Orbital Velocity: " << orbVel << endl;
+            cout << "Centripetal acceleration: " << orbAcc << endl;
+            cout << "=============" << endl;
+        }
         
+        // srand(time(0));
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_real_distribution<> distr(0, 11);
+        newBody.pos.x = distr(gen);
+        newBody.pos.y = distr(gen);
+        newBody.pos.z = distr(gen);
+        bodies.push_back(newBody);       
     }
 
     // read file line by line
@@ -181,9 +240,19 @@ class SolarSystem {
     // this function take variable bodies inside Solarsystem and int acc and use it with function setAccelerations
     // function should be void
     // stepForward()
+    void stepForward(int acc){
+        Body::setAccelerations(bodies, acc);
+    }
 
     // overload SolarSystem object, so it loops through list of bodies and cout it
     // this function also depend on the overload of Body class
+
+    friend ostream& operator<<(ostream& os, const SolarSystem& solarSystem) {
+        for(int i = 0; i < solarSystem.bodies.size(); i++){
+            os << solarSystem.bodies.at(i)<< endl;
+        }
+        return os;
+    }
 
 };
 
