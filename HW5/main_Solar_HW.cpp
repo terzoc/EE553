@@ -5,7 +5,7 @@
 #include <random> // use this to generate random number
 #include <fstream>
 #include <sstream>
-
+#include <iomanip>
 
 using namespace std;
 
@@ -27,7 +27,8 @@ struct Vec3d
 // when use << so it prints like this: x_value, y_value, z_value
 // write your code here
 ostream& operator<<(ostream& os, const Vec3d& v) {
-    os << v.x << ", " << v.y << ", " << v.z;
+    string output = "(" + to_string(v.x) + ", " + to_string(v.y) + ", " + to_string(v.z) + ")";
+    os << output;
     return os;
 }
 
@@ -79,7 +80,12 @@ class Body {
     // main program show an example of the output
     // write your code here
     friend ostream& operator<<(ostream& os, const Body& body) {
-        os << body.name << ", " << body.orbit << ", " << body.mass << ", " << body.pos << ", " << body.v << ", " << body.a;
+         os << left << setw(14) << body.name
+            << setw(10) << body.orbit 
+            << setw(15) << body.mass
+            << setw(15) << body.pos 
+            << setw(35) << body.v 
+            << setw(35) << body.a << endl;
         return os;
     }
 
@@ -141,13 +147,16 @@ class SolarSystem {
     int i = 0;
     double solarMass;
 
-    getline(solarfile, line); //Skip first line
-
     while(getline(solarfile, line)){
         Body newBody = Body();
         stringstream ss(line);
         ss >> name >> orbit >> mass >> diam >> perihelion >> aphelion >> orbPeriod >> rotationalPeriod >> axialtilt >> orbinclin;
 
+        // Skips first label line
+        if (name == "Name"){
+           continue;
+        }
+        
         newBody.name = name;
         newBody.orbit = orbit;
         newBody.mass = stod(mass);
@@ -248,6 +257,8 @@ class SolarSystem {
     // this function also depend on the overload of Body class
 
     friend ostream& operator<<(ostream& os, const SolarSystem& solarSystem) {
+        os << left << setw(14) << "Name" << setw(10) << "Orbit" << setw(15) << "Mass" << setw(15) << "Position" << setw(35) << "Velocity" << setw(35) << "Acceleration" << endl;
+        os << string(110, '=') << endl;
         for(int i = 0; i < solarSystem.bodies.size(); i++){
             os << solarSystem.bodies.at(i)<< endl;
         }
