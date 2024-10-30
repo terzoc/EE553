@@ -1,36 +1,63 @@
+// #include <iostream>
+// #include <string>
+// #include <vector> // use C++ STL vector with our struct
+// #include <cmath>
+// #include <random> // use this to generate random number
+// #include <fstream>
+// #include <sstream>
+
 #include <iostream>
-#include <string>
-#include <vector> // use C++ STL vector with our struct
-#include <cmath>
-#include <random> // use this to generate random number
-#include <fstream>
-#include <sstream>
+// #include <string>
 
 using namespace std;
 
-int main() {
-    // ifstream solarfile("solarsystem.dat");
+struct ListNode {
+    int data;
+    ListNode* next;
+};
 
-    // //check if file exist or not
-    // if (solarfile.is_open()){
+void reversePrint(ListNode* head){
+    if(head == nullptr){
+        return;
+    }
 
-    //     cout << "File is open and ready" << '\n';
-    //     cout << " " << '\n';
-    //     //    return; // use this for program testing to check file is open only without reading the data
-    // }else{
-    //     cout << "File not found!" << '\n';
-    //     cout << "check if path is .././src/***" << '\n';
-    //     cout << " " << '\n';
-    //     // return;
-    // }
+    reversePrint(head->next);
+    cout << head ->data << "->";
 
-    // string line, name, orbit, mass, diam, perihelion, aphelion, orbPeriod, rotationalPeriod, axialtilt, orbinclin;
-    // // Body body;
-    // getline(solarfile, line);
-    // while(getline(solarfile, line)){
-    //     stringstream ss(line);
-    //     ss >> name >> orbit >> mass >> diam >> perihelion >> aphelion >> orbPeriod >> rotationalPeriod >> axialtilt >> orbinclin;
-    //     cout << name << ", " << orbit << ", " << mass << ", " << diam << ", " << perihelion << ", " << aphelion << ", " << orbPeriod << ", " << rotationalPeriod << ", " << axialtilt << ", " << orbinclin;
-    // }
-    cout << ("hell" == "hello");
+}
+
+int main(){
+    ListNode* head = new ListNode;
+    ListNode* second = new ListNode;
+    ListNode* third = new ListNode;
+    ListNode* fourth = new ListNode;
+
+    head->data = 1;
+    head->next = second;
+
+    second->data = 2;
+    second->next = third;
+
+    third->data = 3;
+    third->next = fourth;
+
+    fourth->data = 4;
+    fourth->next = nullptr; // End of the list
+
+    reversePrint(head);
+
+    ListNode* current = head;
+    while (current != nullptr) {
+        cout << current->data << " -> ";
+        current = current->next;
+    }
+    cout << "nullptr" << endl;
+
+    // Free the allocated memory
+    delete head;
+    delete second;
+    delete third;
+    delete fourth;
+
+    return 0;
 }
