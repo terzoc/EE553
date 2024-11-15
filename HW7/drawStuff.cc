@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -14,6 +15,21 @@ using namespace std;
 //  3. function draw take ostream file return void  equal zero
 //  4. make deconstruct ~Shape
 
+class Shape{
+private:
+    double x,y;
+public:
+    Shape(double x,double y):x(x),y(y){};
+    
+    virtual double area() const{
+        return 0.0;
+    }
+
+    virtual void draw(ostream& file){
+    }
+
+    ~Shape(){}
+};
 
 // -------------- Design your Circle class here ---------------
 // -----------------------------------------------------------
@@ -31,7 +47,25 @@ using namespace std;
 // 200 300 100 0 360 arc
 // area take no parameters and return double
 // ~Circle deconstruction
+class Circle: public Shape{
+private:
+    double x,y,radius;
+    
+public:
+    Circle(double x, double y, double radius):Shape(x,y), x(x), y(y), radius(radius){};
 
+    double area() const override{
+        return radius*radius*M_PI;
+    }
+
+    void draw(ostream& file) override{
+        file << x << " " << y << " " << radius << " 0  360  arc \n";
+        file << "stroke \n";
+    }
+
+    ~Circle(){}
+
+};
 
 // -------------- Design your Rect class here ---------------
 // -----------------------------------------------------------
@@ -51,6 +85,29 @@ using namespace std;
 // area take no parameters and return double
 // ~Rect deconstruction
 
+class Rect: public Shape{
+private:
+    double x,y,width, height;
+
+public:
+    Rect(double x, double y, double h, double w): Shape(x,y), x(x), y(y), width(w), height(h){};
+
+    double area() const override{
+        return width * height;
+    }
+
+    void draw(ostream& file) override{
+        file << x << " " << y << " moveto \n";
+        file << x + width << " " << y << " lineto \n";
+        file << x+width << " " << y + height << " lineto \n";
+        file << x << " " << y+height << " lineto \n";
+        file << "closepath \n";
+        file << "stroke \n";
+    }
+
+    ~Rect(){}
+};
+
 
 // -------------- Design your FilledRect class here ---------------
 // -----------------------------------------------------------
@@ -68,6 +125,28 @@ using namespace std;
 //    fill \n
 // area take no parameters and return double
 // ~FilledRect deconstruction
+class FilledRect : public Shape{
+private:
+    double x,y,height, width;
+
+public:
+    FilledRect(double x, double y, double h, double w): Shape(x,y), x(x), y(y), height(h), width(w){};
+
+    double area() const override{
+        return height * width;
+    }
+
+    void draw(ostream& file) override{
+        file << x << " " << y << " moveto \n";
+        file << x + width << " " << y << " lineto \n";
+        file << x+width << " " << y + height << " lineto \n";
+        file << x << " " << y+height << " lineto \n";
+        file << "closepath \n";
+        file << "fill \n";
+    }
+
+    ~FilledRect(){}
+};
 
 
 // -------------- Design your Drawing class here ---------------
@@ -82,7 +161,37 @@ using namespace std;
 // void setrgb take three double for red, green, and blue and write postscript line to change color
 //   postscript:
 //    r_value g_value b_value setrgbcolor \n
+class Drawing{
+private:
+    ofstream file;
+    vector<Shape*> shapes;
 
+public:
+    Drawing(string filename):file(filename.c_str()) {}
+
+    void add(Shape* shape){
+        shapes.push_back(shape);
+    }
+
+    void draw(){
+        for (int i = 0; i < shapes.size(); i++){
+            shapes.at(i)->draw(file);
+        }
+        file << "showpage\n";
+        file.close();
+    }
+
+    void showArea(){
+        double area = 0;
+        for (int i = 0; i < shapes.size(); i++){
+            area += shapes.at(i)->area();
+        }
+        cout << "Total Area: " << area << endl;
+    }
+    void setrgb(double r, double g, double b){
+        file << r << " " << g << " " << b << " setrgbcolor \n";
+    }
+};
 
 int main() {
     cout << "########" << endl;
@@ -90,13 +199,13 @@ int main() {
     cout << "########" << endl;
 
     // set path to create .ps file to write postscript instructions
-    Drawing d("/test.ps");
+    Drawing d("test.ps");
     // set color
     d.setrgb(1,0,0); // set drawing color to be bright red:  1 0 0 setrgbcolor
     // add FilledRect
     d.add(new FilledRect(100.0, 550.0, 200.0, 50)); // x y moveto x y lineto ... fill
     // add Rect
-    d.add(new Rect(200.0, 650.0, 200.0, 50));       // x y moveto x y lineto ... stroke
+    d.add(new Rect(200.0, 450.0, 200.0, 50));       // x y moveto x y lineto ... stroke
     // add Circle
     d.add(new Circle(300,300, 100)); // centered in 300 , 300 pixel with radius
     // draw all shapes added to d
